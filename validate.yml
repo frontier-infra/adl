@@ -1,0 +1,62 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: shellcheck installer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          shellcheck install.sh
+
+  install-test:
+    name: install into temp dir
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mode: [full, minimal]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create target dir
+        run: mkdir -p /tmp/install-target
+      - name: Run installer (${{ matrix.mode }})
+        run: |
+          if [ "${{ matrix.mode }}" = "minimal" ]; then
+            ./install.sh /tmp/install-target --minimal --yes
+          else
+            ./install.sh /tmp/install-target --yes
+          fi
+      - name: Verify required files
+        run: |
+          test -f /tmp/install-target/CLAUDE.md
+          test -f /tmp/install-target/.claude/agents/FORGE.md
+          test -f /tmp/install-target/.claude/agents/QUILL.md
+          test -f /tmp/install-target/.claude/agents/SCOUT.md
+          test -f /tmp/install-target/.claude/projects/PROJECT_TEMPLATE.md
+          test -f /tmp/install-target/.claude/orchestrator/ARGENT.md
+          test -f /tmp/install-target/.claude/docs/LAYERING_MODEL.md
+          test -f /tmp/install-target/.claude/docs/ROUTING_PATTERNS.md
+          test -f /tmp/install-target/.claude/docs/CREATING_OVERLAYS.md
+      - name: Verify example projects (full only)
+        if: matrix.mode == 'full'
+        run: |
+          test -f /tmp/install-target/.claude/projects/PROJECT_WEBAPP.md
+          test -f /tmp/install-target/.claude/projects/PROJECT_API.md
+          test -f /tmp/install-target/.claude/projects/PROJECT_CLI.md
+      - name: Verify example projects absent (minimal only)
+        if: matrix.mode == 'minimal'
+        run: |
+          test ! -f /tmp/install-target/.claude/projects/PROJECT_WEBAPP.md
+          test ! -f /tmp/install-target/.claude/projects/PROJECT_API.md
+          test ! -f /tmp/install-target/.claude/projects/PROJECT_CLI.md
+      - name: Test idempotency
+        run: ./install.sh /tmp/install-target --yes
