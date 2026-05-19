@@ -146,7 +146,7 @@ The hook fires when a worker tries to terminate (report done). It looks up the a
 - `signed_off: true` → release.
 - Anything else → block. Worker must either fix the underlying failure and re-verify, or hand off to the operator with the kickback reason.
 
-A reference hook config ships at `.claude/settings.example.json`. Copy it into `.claude/settings.json` (or merge into existing) and adjust paths if your harness exposes task-id differently.
+A reference hook config ships at `.claude/settings.example.json`. The installer also ships `.claude/hooks/goal-gate.sh` as the real executable gate. Copy the settings example into `.claude/settings.json` (or merge into existing), ensure `jq` is installed, and adjust task-id resolution if your harness exposes it differently.
 
 ## Kickback routing
 

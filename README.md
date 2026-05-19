@@ -57,6 +57,14 @@ This precedence model is the whole point. It means you can write project overlay
 
 ## What gets installed
 
+The 30-second model:
+
+- `CLAUDE.md` tells the agent how to behave.
+- Role overlays tell it what job it has.
+- Project overlays tell it what matters here.
+- `/goal` tells it what done means.
+- Warden and `goal-gate.sh` keep it from claiming done without proof.
+
 ```
 your-project/
 ├── CLAUDE.md                              # Layer 1: universal discipline
@@ -77,6 +85,8 @@ your-project/
     │   └── PROJECT_CLI.md                 # example: command-line tool
     ├── orchestrator/
     │   └── ARGENT.md                      # routing and context composition
+    ├── hooks/
+    │   └── goal-gate.sh                   # Stop hook gate for /goal proofs
     ├── docs/
     │   ├── LAYERING_MODEL.md              # how layers compose at runtime
     │   ├── ROUTING_PATTERNS.md            # when to use which agent
@@ -131,9 +141,9 @@ The "what you do not own" sections in each overlay are deliberately heavier than
 
 ## The `/goal` contract (v1.1.0+)
 
-Every code-changing slice gets a manifest at `.claude/goals/<task-id>.yaml` that declares its `done_when` checks (tests, commands, file constraints, diff constraints). Workers cannot self-assess "done" — Warden runs the manifest, writes `.claude/goals/<task-id>.proof.json`, and a Stop hook refuses to release the worker until `signed_off: true`. For Scout investigations and design slices where the verifier is operator judgment, Warden emits `signed_off: "pending"` plus a reviewer checklist; the operator flips it manually.
+Every code-changing slice gets a manifest at `.claude/goals/<task-id>.yaml` that declares its `done_when` checks (tests, commands, file constraints, diff constraints). Workers cannot self-assess "done" — Warden runs the manifest, writes `.claude/goals/<task-id>.proof.json`, and the installed Stop hook at `.claude/hooks/goal-gate.sh` refuses to release the worker until `signed_off: true`. For Scout investigations and design slices where the verifier is operator judgment, Warden emits `signed_off: "pending"` plus a reviewer checklist; the operator flips it manually.
 
-Full spec lives at `.claude/docs/GOAL_PROTOCOL.md`. Reference Stop-hook config at `.claude/settings.example.json`.
+Full spec lives at `.claude/docs/GOAL_PROTOCOL.md`. Reference Stop-hook config at `.claude/settings.example.json`; copy or merge it into `.claude/settings.json` when you want gating enabled. The hook requires `jq` and a `CLAUDE_GOAL_ID` environment variable for sessions that should be gated.
 
 ## The orchestrator (optional but useful)
 

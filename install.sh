@@ -81,6 +81,7 @@ What gets installed:
   .claude/projects/PROJECT_API.md        Layer 3: example (full install only)
   .claude/projects/PROJECT_CLI.md        Layer 3: example (full install only)
   .claude/orchestrator/ARGENT.md         Orchestrator config
+  .claude/hooks/goal-gate.sh             Stop hook gate for /goal proof enforcement
   .claude/docs/LAYERING_MODEL.md         How layers compose
   .claude/docs/ROUTING_PATTERNS.md       When to use which agent
   .claude/docs/CREATING_OVERLAYS.md      How to write a new overlay
@@ -203,6 +204,12 @@ echo ""
 echo "  [Orchestrator]"
 copy_with_check "$SCRIPT_DIR/.claude/orchestrator/ARGENT.md" "$TARGET_DIR/.claude/orchestrator/ARGENT.md"
 
+# Hooks
+echo ""
+echo "  [Hooks]"
+copy_with_check "$SCRIPT_DIR/.claude/hooks/goal-gate.sh" "$TARGET_DIR/.claude/hooks/goal-gate.sh"
+chmod +x "$TARGET_DIR/.claude/hooks/goal-gate.sh" 2>/dev/null || true
+
 # Docs
 echo ""
 echo "  [Docs]"
@@ -227,7 +234,8 @@ fi
 echo "  3. Copy PROJECT_TEMPLATE.md to PROJECT_<YOURNAME>.md for new projects"
 echo "  4. Update path-to-project mapping in .claude/orchestrator/ARGENT.md"
 echo "  5. Read .claude/docs/GOAL_PROTOCOL.md and decide whether to wire the Stop hook from .claude/settings.example.json"
-echo "  6. Commit the .claude directory to your repo"
+echo "  6. If you enable the Stop hook, ensure jq is installed and set CLAUDE_GOAL_ID for goal-scoped sessions"
+echo "  7. Commit the .claude directory to your repo"
 echo ""
 echo "Quick test in Claude Code:"
 echo "  Read CLAUDE.md, then summarize in three sentences what behaviors it requires."

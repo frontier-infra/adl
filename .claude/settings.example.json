@@ -1,5 +1,5 @@
 {
-  "_comment": "Reference Stop-hook config for the /goal protocol. Copy into .claude/settings.json (or merge into existing) and adjust the task-id resolution if your harness exposes it differently. The hook blocks the worker from reporting done until .claude/goals/<task-id>.proof.json exists with signed_off === true.",
+  "_comment": "Reference Stop-hook config for the /goal protocol. Copy into .claude/settings.json (or merge into existing). The installer provides .claude/hooks/goal-gate.sh; adjust that script if your harness resolves task IDs differently. The hook requires jq and blocks worker completion until .claude/goals/<task-id>.proof.json exists with signed_off === true.",
   "hooks": {
     "Stop": [
       {
@@ -11,35 +11,6 @@
           }
         ]
       }
-    ]
-  },
-  "_hook_script_example": {
-    "_comment": "Save as .claude/hooks/goal-gate.sh and chmod +x. Resolves task-id from $CLAUDE_GOAL_ID (set by the operator or /goal command), reads the proof, blocks unless signed_off is the literal boolean true.",
-    "_script": [
-      "#!/usr/bin/env bash",
-      "set -euo pipefail",
-      "",
-      "TASK_ID=\"${CLAUDE_GOAL_ID:-}\"",
-      "if [ -z \"$TASK_ID\" ]; then",
-      "  echo '[goal-gate] no CLAUDE_GOAL_ID set; releasing (no contract to enforce).' >&2",
-      "  exit 0",
-      "fi",
-      "",
-      "PROOF=\".claude/goals/${TASK_ID}.proof.json\"",
-      "if [ ! -f \"$PROOF\" ]; then",
-      "  echo \"[goal-gate] BLOCK: no proof at $PROOF. Run /goal-verify $TASK_ID first.\" >&2",
-      "  exit 2",
-      "fi",
-      "",
-      "SIGNED=$(jq -r '.signed_off' \"$PROOF\")",
-      "if [ \"$SIGNED\" = \"true\" ]; then",
-      "  echo \"[goal-gate] RELEASE: $TASK_ID signed off.\" >&2",
-      "  exit 0",
-      "fi",
-      "",
-      "REASON=$(jq -r '.kickback_reason // \"unspecified\"' \"$PROOF\")",
-      "echo \"[goal-gate] BLOCK: signed_off=$SIGNED; reason: $REASON\" >&2",
-      "exit 2"
     ]
   }
 }

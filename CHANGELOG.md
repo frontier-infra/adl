@@ -2,6 +2,19 @@
 
 All notable changes to claude-layers will be documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- Installed `.claude/hooks/goal-gate.sh` as a real Stop-hook gate instead of only documenting the script inside `settings.example.json`
+- Active GitHub Actions workflow at `.github/workflows/validate.yml` for installer and hook checks
+- README 30-second mental model for how `CLAUDE.md`, role overlays, project overlays, `/goal`, Warden, and `goal-gate.sh` fit together
+
+### Changed
+
+- Installer now copies `goal-gate.sh`, marks it executable, and reminds users that enabled Stop-hook gating requires `jq` and `CLAUDE_GOAL_ID`
+- Validation now checks that the installed hook exists and is executable
+
 ## [1.1.0] - 2026-05-19
 
 ### Added
