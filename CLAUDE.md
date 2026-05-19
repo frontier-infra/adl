@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Layer:** 1 of 4 (Base floor)
 **Source:** github.com/frontier-infra/claude-layers
 
@@ -74,6 +74,8 @@ Reframe vague tasks into testable ones:
 - "Refactor X" becomes "tests pass before and after, behavior unchanged"
 
 For multi-step or stateful work only, state a brief plan with verification points before starting. Skip this for single-file or read-only tasks.
+
+When the project has the `/goal` protocol installed (`.claude/docs/GOAL_PROTOCOL.md`), the canonical form of the success criterion is a manifest at `.claude/goals/<task-id>.yaml` and a proof artifact written by Warden at `.claude/goals/<task-id>.proof.json`. You do not self-assess "done" — Warden verifies and signs off. If a manifest exists for your slice, read it before starting; the `done_when` checks are the bar.
 
 ## 7. Comments and code are not yours to edit casually.
 

@@ -20,10 +20,14 @@ Source overlay files live under `.claude/` mirroring their destination layout. T
 | Source path                                     | Installed at target as                          | Layer        |
 |-------------------------------------------------|-------------------------------------------------|--------------|
 | `CLAUDE.md`                                     | `<target>/CLAUDE.md`                            | 1 (base)     |
-| `.claude/agents/FORGE.md` / `QUILL.md` / `SCOUT.md` | `<target>/.claude/agents/<NAME>.md`         | 2 (role)     |
+| `.claude/agents/FORGE.md` / `QUILL.md` / `SCOUT.md` / `WARDEN.md` | `<target>/.claude/agents/<NAME>.md` | 2 (role) |
+| `.claude/commands/goal.md` / `goal-verify.md`   | `<target>/.claude/commands/<NAME>.md`           | slash commands |
 | `.claude/projects/PROJECT_TEMPLATE.md` / `PROJECT_WEBAPP.md` / `PROJECT_API.md` / `PROJECT_CLI.md` | `<target>/.claude/projects/<NAME>.md` | 3 (project)  |
 | `.claude/orchestrator/ARGENT.md`                | `<target>/.claude/orchestrator/ARGENT.md`       | orchestrator |
-| `.claude/docs/LAYERING_MODEL.md` / `ROUTING_PATTERNS.md` / `CREATING_OVERLAYS.md` | `<target>/.claude/docs/<NAME>.md` | docs |
+| `.claude/docs/LAYERING_MODEL.md` / `ROUTING_PATTERNS.md` / `CREATING_OVERLAYS.md` / `GOAL_PROTOCOL.md` | `<target>/.claude/docs/<NAME>.md` | docs |
+| `.claude/settings.example.json`                 | `<target>/.claude/settings.example.json`        | settings (reference) |
+
+The installer also creates an empty `<target>/.claude/goals/` directory; manifests and proofs land there via the `/goal` and `/goal-verify` slash commands.
 
 Editing any of these is a product change. Treat them like releasable artifacts:
 

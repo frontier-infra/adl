@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Defaults
@@ -73,6 +73,9 @@ What gets installed:
   .claude/agents/FORGE.md                Layer 2: builder role
   .claude/agents/QUILL.md                Layer 2: writer role
   .claude/agents/SCOUT.md                Layer 2: investigator role
+  .claude/agents/WARDEN.md               Layer 2: verifier role (/goal sign-off)
+  .claude/commands/goal.md               Slash command: open a /goal manifest
+  .claude/commands/goal-verify.md        Slash command: run Warden against a manifest
   .claude/projects/PROJECT_TEMPLATE.md   Layer 3: template
   .claude/projects/PROJECT_WEBAPP.md     Layer 3: example (full install only)
   .claude/projects/PROJECT_API.md        Layer 3: example (full install only)
@@ -81,6 +84,8 @@ What gets installed:
   .claude/docs/LAYERING_MODEL.md         How layers compose
   .claude/docs/ROUTING_PATTERNS.md       When to use which agent
   .claude/docs/CREATING_OVERLAYS.md      How to write a new overlay
+  .claude/docs/GOAL_PROTOCOL.md          /goal manifest + Warden + Stop-hook contract
+  .claude/settings.example.json          Reference Stop-hook config for /goal gating
 
 After install:
   1. Review CLAUDE.md at the target's root
@@ -167,9 +172,20 @@ copy_with_check "$SCRIPT_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
 # Layer 2: Role overlays
 echo ""
 echo "  [Layer 2] Roles"
-copy_with_check "$SCRIPT_DIR/.claude/agents/FORGE.md" "$TARGET_DIR/.claude/agents/FORGE.md"
-copy_with_check "$SCRIPT_DIR/.claude/agents/QUILL.md" "$TARGET_DIR/.claude/agents/QUILL.md"
-copy_with_check "$SCRIPT_DIR/.claude/agents/SCOUT.md" "$TARGET_DIR/.claude/agents/SCOUT.md"
+copy_with_check "$SCRIPT_DIR/.claude/agents/FORGE.md"  "$TARGET_DIR/.claude/agents/FORGE.md"
+copy_with_check "$SCRIPT_DIR/.claude/agents/QUILL.md"  "$TARGET_DIR/.claude/agents/QUILL.md"
+copy_with_check "$SCRIPT_DIR/.claude/agents/SCOUT.md"  "$TARGET_DIR/.claude/agents/SCOUT.md"
+copy_with_check "$SCRIPT_DIR/.claude/agents/WARDEN.md" "$TARGET_DIR/.claude/agents/WARDEN.md"
+
+# Slash commands
+echo ""
+echo "  [Commands]"
+copy_with_check "$SCRIPT_DIR/.claude/commands/goal.md"        "$TARGET_DIR/.claude/commands/goal.md"
+copy_with_check "$SCRIPT_DIR/.claude/commands/goal-verify.md" "$TARGET_DIR/.claude/commands/goal-verify.md"
+
+# Create goals dir for /goal manifests + proofs
+mkdir -p "$TARGET_DIR/.claude/goals"
+echo "  Wrote: .claude/goals/ (empty; populated by /goal)"
 
 # Layer 3: Template (always) + examples (full only)
 echo ""
@@ -193,6 +209,12 @@ echo "  [Docs]"
 copy_with_check "$SCRIPT_DIR/.claude/docs/LAYERING_MODEL.md"    "$TARGET_DIR/.claude/docs/LAYERING_MODEL.md"
 copy_with_check "$SCRIPT_DIR/.claude/docs/ROUTING_PATTERNS.md"  "$TARGET_DIR/.claude/docs/ROUTING_PATTERNS.md"
 copy_with_check "$SCRIPT_DIR/.claude/docs/CREATING_OVERLAYS.md" "$TARGET_DIR/.claude/docs/CREATING_OVERLAYS.md"
+copy_with_check "$SCRIPT_DIR/.claude/docs/GOAL_PROTOCOL.md"     "$TARGET_DIR/.claude/docs/GOAL_PROTOCOL.md"
+
+# Reference settings (example, not active)
+echo ""
+echo "  [Settings reference]"
+copy_with_check "$SCRIPT_DIR/.claude/settings.example.json" "$TARGET_DIR/.claude/settings.example.json"
 
 echo ""
 echo "Done."
@@ -204,7 +226,8 @@ if [ "$MINIMAL" = false ]; then
 fi
 echo "  3. Copy PROJECT_TEMPLATE.md to PROJECT_<YOURNAME>.md for new projects"
 echo "  4. Update path-to-project mapping in .claude/orchestrator/ARGENT.md"
-echo "  5. Commit the .claude directory to your repo"
+echo "  5. Read .claude/docs/GOAL_PROTOCOL.md and decide whether to wire the Stop hook from .claude/settings.example.json"
+echo "  6. Commit the .claude directory to your repo"
 echo ""
 echo "Quick test in Claude Code:"
 echo "  Read CLAUDE.md, then summarize in three sentences what behaviors it requires."

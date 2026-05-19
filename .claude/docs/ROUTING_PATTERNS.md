@@ -14,7 +14,8 @@ Before routing, classify the request:
 | "Document," "write up," "draft a spec," "explain" | Quill |
 | "Investigate," "trace," "find out," "how does X work" | Scout |
 | "Compare," "audit," "verify" | Scout, possibly with Quill writeup |
-| "Refactor," "improve," "make better" | Decompose: Scout then Quill then Forge |
+| "Refactor," "improve," "make better" | Decompose: Scout then Quill then Forge then Warden |
+| "Did this work meet its goal," "sign off on this," "verify against the manifest" | Warden |
 | "What should we do about X" | Escalate to the human |
 
 If classification is ambiguous, ask before delegating.
@@ -26,8 +27,9 @@ Any task containing both "what" and "how" needs decomposition. Specialists do on
 - Forge: implement a known *what*
 - Quill: define the *what*
 - Scout: discover the *what* that already exists
+- Warden: verify that a delivered *what* meets its written contract
 
-Fuzzy tasks that combine these always decompose to Scout then Quill then Forge.
+Fuzzy tasks that combine these always decompose to Scout then Quill then Forge then Warden. Warden runs at the end of every code-changing slice; for pure-research slices Warden still runs and emits a `signed_off: "pending"` proof for the operator to sign manually.
 
 ## Common patterns
 
@@ -88,9 +90,12 @@ For high-stakes work, the human approves between stages.
 
 ```
 "Refactor the Stripe webhook handler."
-→ Scout reports current behavior [operator gate]
-→ Quill writes refactor spec [operator gate]
-→ Forge implements [operator gate]
+→ /goal opens manifest for Scout slice
+→ Scout reports current behavior → Warden writes pending proof [operator gate]
+→ /goal opens manifest for Quill slice
+→ Quill writes refactor spec → Warden writes pending proof [operator gate]
+→ /goal opens manifest for Forge slice (test + diff_constraint checks)
+→ Forge implements → Warden writes signed_off proof [operator gate]
 ```
 
 ## Anti-patterns
@@ -135,8 +140,9 @@ If a specialist returns "I cannot do this":
 - **Forge cannot proceed without a spec** → route to Quill for the spec, then back to Forge
 - **Quill cannot write a spec without findings** → route to Scout for investigation, then back to Quill
 - **Scout cannot find what was asked** → report to operator; do not improvise
+- **Warden returns `signed_off: false`** → route by failure type per `.claude/docs/GOAL_PROTOCOL.md` (test/command failures → Forge; doc failures → Quill; diff_constraint violations → operator decides)
 
-Never retry the same delegation with the same context and expect a different result.
+Never retry the same delegation with the same context and expect a different result. Three failed Warden verifications on the same manifest is a signal that the manifest is wrong, not the worker — escalate to the operator to rewrite `done_when`.
 
 ## When to refuse a task
 

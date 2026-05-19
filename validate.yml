@@ -41,11 +41,17 @@ jobs:
           test -f /tmp/install-target/.claude/agents/FORGE.md
           test -f /tmp/install-target/.claude/agents/QUILL.md
           test -f /tmp/install-target/.claude/agents/SCOUT.md
+          test -f /tmp/install-target/.claude/agents/WARDEN.md
+          test -f /tmp/install-target/.claude/commands/goal.md
+          test -f /tmp/install-target/.claude/commands/goal-verify.md
+          test -d /tmp/install-target/.claude/goals
           test -f /tmp/install-target/.claude/projects/PROJECT_TEMPLATE.md
           test -f /tmp/install-target/.claude/orchestrator/ARGENT.md
           test -f /tmp/install-target/.claude/docs/LAYERING_MODEL.md
           test -f /tmp/install-target/.claude/docs/ROUTING_PATTERNS.md
           test -f /tmp/install-target/.claude/docs/CREATING_OVERLAYS.md
+          test -f /tmp/install-target/.claude/docs/GOAL_PROTOCOL.md
+          test -f /tmp/install-target/.claude/settings.example.json
       - name: Verify example projects (full only)
         if: matrix.mode == 'full'
         run: |
