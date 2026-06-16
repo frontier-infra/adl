@@ -2,7 +2,7 @@
 
 **Version:** 1.1.0
 **Layer:** 1 of 4 (Base floor)
-**Source:** github.com/frontier-infra/claude-layers
+**Source:** github.com/frontier-infra/adl
 
 Universal behavioral guidelines for Claude Code in this project. Role overlays in `.claude/agents/` and project overlays in `.claude/projects/` add constraint on top of this floor but cannot relax it.
 

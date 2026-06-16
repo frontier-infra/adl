@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to claude-layers will be documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+All notable changes to adl will be documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [Unreleased]
+
+### Changed
+
+- **Renamed `claude-layers` → `adl` (Agent Discipline Layer).** Same tool, new name — completing the Frontier Infra family **AVL / AAR / ADL** (declare / prove / behave). The repo, install URL, and branding move to `adl`; GitHub redirects the old `claude-layers` paths, so existing clones and `curl | bash` installs keep working. The "behave" standard is named for its category, not one harness: **Claude Code today**, with **Grok / Codex CLI / Pi** adapters on the roadmap. No install-path or behavior change.
 
 ## [1.1.0] - 2026-05-19
 
@@ -34,5 +40,5 @@ All notable changes to claude-layers will be documented here. Format follows [Ke
 - AI install instructions at `AI_INSTALL.md` for Claude Code agents installing on a user's behalf
 - MIT license
 
-[1.1.0]: https://github.com/frontier-infra/claude-layers/releases/tag/v1.1.0
-[1.0.0]: https://github.com/frontier-infra/claude-layers/releases/tag/v1.0.0
+[1.1.0]: https://github.com/frontier-infra/adl/releases/tag/v1.1.0
+[1.0.0]: https://github.com/frontier-infra/adl/releases/tag/v1.0.0

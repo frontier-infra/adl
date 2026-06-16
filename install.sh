@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# claude-layers installer
-# https://github.com/frontier-infra/claude-layers
+# Agent Discipline Layer (ADL) installer
+# https://github.com/frontier-infra/adl
 #
 # Installs the layered behavioral architecture into a Claude Code project.
 # Safe to run multiple times. Asks before overwriting unless --yes is passed.
@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --version|-v)
-      echo "claude-layers installer v${VERSION}"
+      echo "Agent Discipline Layer (ADL) installer v${VERSION}"
       exit 0
       ;;
     -*)
@@ -54,7 +54,7 @@ done
 
 if [ "$SHOW_HELP" = true ]; then
   cat <<EOF
-claude-layers installer v${VERSION}
+Agent Discipline Layer (ADL) installer v${VERSION}
 
 Usage:
   ./install.sh [TARGET_DIR] [OPTIONS]
@@ -116,7 +116,7 @@ fi
 
 # Banner
 echo ""
-echo "claude-layers v${VERSION}"
+echo "Agent Discipline Layer (ADL) v${VERSION}"
 echo "========================="
 echo "Source:  $SCRIPT_DIR"
 echo "Target:  $TARGET_DIR"

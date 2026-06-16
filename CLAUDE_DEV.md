@@ -1,6 +1,6 @@
 # CLAUDE_DEV.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working on the **claude-layers repo itself** — not when running inside a project that consumes claude-layers.
+This file provides guidance to Claude Code (claude.ai/code) when working on the **adl repo itself** — not when running inside a project that consumes adl.
 
 Claude Code only auto-loads `CLAUDE.md` at the project root. That file is the Layer 1 product this repo ships. To use this file, point Claude at it explicitly: `read CLAUDE_DEV.md before making changes here`.
 
@@ -87,4 +87,4 @@ From `CONTRIBUTING.md`, repeated here because they bind any edit:
 
 ## Releasing
 
-`CHANGELOG.md` follows Keep a Changelog. The pinned `claude-layers-v1.0.0.tar.gz` at the repo root is the v1.0.0 release artifact. There is no automated release pipeline; bumping `VERSION` in `install.sh` and updating `CHANGELOG.md` are manual steps.
+`CHANGELOG.md` follows Keep a Changelog. The pinned `adl-v1.0.0.tar.gz` at the repo root is the v1.0.0 release artifact. There is no automated release pipeline; bumping `VERSION` in `install.sh` and updating `CHANGELOG.md` are manual steps.

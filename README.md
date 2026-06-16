@@ -1,27 +1,68 @@
-# claude-layers
+# Agent Discipline Layer (ADL)
 
-[![Latest release](https://img.shields.io/github/v/release/frontier-infra/claude-layers?label=release&color=7C3AED)](https://github.com/frontier-infra/claude-layers/releases)
-[![License: MIT](https://img.shields.io/github/license/frontier-infra/claude-layers?color=blue)](LICENSE)
+_Formerly **Claude Layers** — same tool, new name. Claude Code today; Grok, Codex CLI, and Pi on the roadmap._
+
+[![Latest release](https://img.shields.io/github/v/release/frontier-infra/adl?label=release&color=7C3AED)](https://github.com/frontier-infra/adl/releases)
+[![License: MIT](https://img.shields.io/github/license/frontier-infra/adl?color=blue)](LICENSE)
 [![Built for Claude Code](https://img.shields.io/badge/built%20for-Claude%20Code-D97757)](https://claude.com/claude-code)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
 
-**A layered behavioral configuration system for Claude Code.**
+**Keep your Claude Code agent honest — and make it prove its work.**
+_The discipline layer of [The Machine](https://frontierinfra.org): layered guardrails for Claude Code, plus a gate that won't let the agent call it "done" until a real check passes._
 
-`claude-layers` installs a four-layer instruction architecture into your Claude Code project. The layers compose at runtime so that universal coding discipline, role-specific behavior, project-specific values, and per-task constraints all stack into a single coherent context, with clear precedence rules and no silent contradictions.
+**The problem.** You ask for a small change. The agent silently rewrites a working file, invents a
+requirement you never gave it, folds the instant you push back — and reports "done." You find out later.
 
-If you have ever watched a Claude Code agent silently rewrite a working file, capitulate the moment you challenged it, or invent requirements that were not in the spec, this is the tool for those problems.
+**What the Agent Discipline Layer does.** Two things. It stacks **four layers of discipline** into the agent's
+context so the rules can't quietly contradict each other (the strongest-worded line stops winning by
+accident). And it adds a **verify-against-reality gate**: a `/goal` contract whose checks a separate
+verifier (**Warden**) actually runs — a test passes, a file exists, the diff stays in bounds — and
+**signs a proof**. "Done" stops meaning *the agent said so* and starts meaning *the checks passed*. A
+worker can fake a transcript; it can't fake a failing test.
+
+## Quickstart (~1 minute)
+
+Install into your project:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/frontier-infra/claude-layers/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/frontier-infra/adl/main/install.sh | bash
+# or:  git clone https://github.com/frontier-infra/adl.git && ./install.sh /path/to/your/project
 ```
 
-Or clone and run manually:
+Confirm the discipline loaded — in your Claude Code session:
 
-```bash
-git clone https://github.com/frontier-infra/claude-layers.git
-cd claude-layers
-./install.sh /path/to/your/project
 ```
+Read CLAUDE.md, then summarize in three sentences what behaviors it requires.
+```
+
+A correct answer mentions **reading before writing, surfacing confusion before acting, and surgical
+edits**. If it skips those, the file didn't load.
+
+Then lock a verifiable contract and let Warden sign it off:
+
+```
+/goal the replay test in src/api/stripe.test.ts passes and only the stripe handler is touched
+        →  writes a manifest of checks; a role (Forge) does the work
+/goal-verify
+        →  Warden runs the checks against reality and writes a signed proof
+```
+
+Wire the Stop-hook gate once (copy `.claude/settings.example.json` into `.claude/settings.json`) and
+the session **cannot end until the proof says `signed_off: true`** — so "done" is earned, not asserted.
+
+## What you get
+
+- **Four composing layers** — universal discipline · role (Forge / Quill / Scout / Warden) · project
+  values · per-task contract — stacked with clear precedence and **no silent contradictions**.
+- **`/goal` + Warden** — a verifiable contract per slice, checked against *reality* and signed, never
+  self-assessed.
+- **Honest by construction** — the gate blocks done-in-silence; the verifier is never the worker.
+
+> **Shipped today:** the four layers + the `/goal` manifest → Warden → signed proof → Stop-hook gate.
+> **Roadmap (marked honestly, not shipped):** an owned local model to sign the subjective residue so
+> you're not the default reviewer; a ratified amendment channel; a multi-model council.
+
+The deeper sections below explain the layering model, the roles, and the goal protocol in full.
 
 ---
 
@@ -38,7 +79,7 @@ A single `CLAUDE.md` at the root of your project addresses some of this. But a s
 - You want the agent to know when to escalate to you versus when to act
 - You want the same agent to behave differently depending on which project it is in
 
-`claude-layers` solves these by separating concerns into composable layers.
+`adl` solves these by separating concerns into composable layers.
 
 ## The layering model
 
@@ -116,7 +157,7 @@ The agent has enough context to do the work correctly and enough boundaries to r
 
 ## The four roles
 
-`claude-layers` ships with four roles. The pattern is deliberate: they cover the full lifecycle of any technical change — *what exists* (Scout), *what to do* (Quill), *the doing* (Forge), and *did it actually meet the contract* (Warden).
+`adl` ships with four roles. The pattern is deliberate: they cover the full lifecycle of any technical change — *what exists* (Scout), *what to do* (Quill), *the doing* (Forge), and *did it actually meet the contract* (Warden).
 
 | Role | What they do | What they refuse |
 |---|---|---|
@@ -134,6 +175,17 @@ The "what you do not own" sections in each overlay are deliberately heavier than
 Every code-changing slice gets a manifest at `.claude/goals/<task-id>.yaml` that declares its `done_when` checks (tests, commands, file constraints, diff constraints). Workers cannot self-assess "done" — Warden runs the manifest, writes `.claude/goals/<task-id>.proof.json`, and a Stop hook refuses to release the worker until `signed_off: true`. For Scout investigations and design slices where the verifier is operator judgment, Warden emits `signed_off: "pending"` plus a reviewer checklist; the operator flips it manually.
 
 Full spec lives at `.claude/docs/GOAL_PROTOCOL.md`. Reference Stop-hook config at `.claude/settings.example.json`.
+
+## Verify against reality — and why it matters now
+
+`adl` is the **discipline layer of [The Machine](https://frontierinfra.org)**: Part 0 (a contract before work starts) and Part 4 (verify against reality, `verifier ≠ subject`), made native to Claude Code. The distinction is load-bearing. Claude Code's built-in `/goal` evaluator judges a condition against *the conversation transcript* — what the agent **said** it did. Warden judges against *ground truth* — it runs the `done_when` checks and signs a proof from their actual results. A worker can talk its way past the transcript; it cannot talk its way past a failing test.
+
+This is also what lets the discipline outlive any one model. When a model is replaced — or, as in June 2026, [recalled by a government letter overnight](https://jasonbrashear.substack.com/p/the-first-recall) — the contract, the checks, and the proof are all on disk, owned by you. The work survives because the verifier was never the model.
+
+**Shipped today:** the four-layer model; the `/goal` manifest → Warden → signed `proof.json` → Stop-hook gate.
+**Roadmap (not yet shipped, marked honestly):** an owned, local model to sign the `human_review` residue Warden currently hands back to you; a ratified amendment channel so a contract can be corrected when execution falsifies it, without a loop; a multi-model council for the design-judgment calls a single verifier shouldn't make alone.
+
+The discipline has been turned on its own enforcement machinery — and survived it. See [`CASE_STUDY.md`](CASE_STUDY.md): a real audit that hardened the goal-contract gate by catching it blocking finished work, fixed three bugs under a contract, and shipped the fix across seven profiles.
 
 ## The orchestrator (optional but useful)
 

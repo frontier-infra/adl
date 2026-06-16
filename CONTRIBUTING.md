@@ -1,10 +1,10 @@
-# Contributing to claude-layers
+# Contributing to adl
 
 Thanks for considering a contribution. This document describes what kinds of changes are in scope and how to propose them.
 
 ## What this project is
 
-`claude-layers` is an opinionated configuration system. The opinions are the value. Contributions should sharpen the opinions or expand the surface where they apply, not blunt them.
+`adl` is an opinionated configuration system. The opinions are the value. Contributions should sharpen the opinions or expand the surface where they apply, not blunt them.
 
 ## What is in scope
 

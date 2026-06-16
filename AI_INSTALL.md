@@ -1,14 +1,14 @@
 # AI Install Instructions
 
-This document tells a Claude Code instance how to install `claude-layers` into a user's project when the user points it at this repository.
+This document tells a Claude Code instance how to install `adl` into a user's project when the user points it at this repository.
 
-If you are a human reading this, you do not need to follow these instructions. Run `./install.sh` instead. This file exists for the case where a user says to their Claude Code agent: *"Go install claude-layers from this repo into my project."*
+If you are a human reading this, you do not need to follow these instructions. Run `./install.sh` instead. This file exists for the case where a user says to their Claude Code agent: *"Go install adl from this repo into my project."*
 
 ---
 
 ## Your role
 
-You are a Claude Code agent. The user has pointed you at the `claude-layers` repository and asked you to install it into their project. You need to:
+You are a Claude Code agent. The user has pointed you at the `adl` repository and asked you to install it into their project. You need to:
 
 1. Understand what the user wants installed
 2. Verify the target directory
@@ -36,7 +36,7 @@ Before copying any files:
 
 ## File map
 
-Copy from the `claude-layers` repository to the user's target directory:
+Copy from the `adl` repository to the user's target directory:
 
 | Source | Destination | Always installed |
 |---|---|---|
@@ -59,7 +59,7 @@ Create destination directories as needed.
 
 For each file in the file map:
 
-1. Read the source file from the `claude-layers` repository.
+1. Read the source file from the `adl` repository.
 2. Check if the destination exists.
 3. If it exists, ask the user before overwriting. (Skip this step if the user said "overwrite all" earlier.)
 4. Write the file to the destination.
