@@ -62,6 +62,23 @@ the session **cannot end until the proof says `signed_off: true`** — so "done"
 > **Roadmap (marked honestly, not shipped):** an owned local model to sign the subjective residue so
 > you're not the default reviewer; a ratified amendment channel; a multi-model council.
 
+## Enforcement engines
+
+ADL's contract/proof semantics are a spec, and this repo ships one engine for
+them. The spec is **[specs/adl-contract-and-proof.md](specs/adl-contract-and-proof.md)** —
+contract grammar, manifest and proof formats, disposition vocabulary, and what
+any conforming engine must do.
+
+| Engine | Altitude | Harness | What it adds |
+|---|---|---|---|
+| **Warden gate** (this repo) | per-project (`.claude/`) | Claude Code | `/goal` → manifest → verified, signed proof → Stop-hook gate |
+| **[Proctor](https://github.com/frontier-infra/proctor)** | per-machine (`~/.claude`) — supervises every session | Claude Code | witness log from tool ground truth, disposition gate, bounded loud yields, operator inbox + recorded sign-off, and the judge dial (a local model signing `human_review` residue — the roadmap item above, shipped there today) |
+
+Same contract, same manifest, same proof — different altitude. Install ADL in
+the repo, Proctor on the machine; they compose. The multi-harness roadmap
+(Grok, Codex CLI, Pi) means *new engines conforming to the spec*, not ports of
+either implementation's plumbing.
+
 The deeper sections below explain the layering model, the roles, and the goal protocol in full.
 
 ---
