@@ -1,6 +1,6 @@
 # ADL Contract & Proof Spec
 
-**Version 0.1 (draft)** · The portable semantics of the "behave" tier.
+**Version 0.2 (draft)** · The portable semantics of the "behave" tier.
 
 This spec defines what a **contract**, a **manifest**, a **proof**, and a
 **witness log** are, and what any **enforcement engine** must do with them. It
@@ -169,10 +169,40 @@ Following the house convention (cf. AAR's `CONFORMANCE.md`, The Machine's
 | **L2** | Verified | Contracts bridge to manifests; a verifier runs checks against reality and writes signed proofs. |
 | **L3** | Enforced | The session **cannot end clean** without a signed proof and closed dispositions; yields are bounded and loud. |
 
+## 7. AAR emission (optional)
+
+A conforming engine MAY convert proofs into **Agent Attestation Records**
+([AAR v0.02](https://github.com/frontier-infra/agentcontrolplane)) — the portable,
+Ed25519-signed proof tier — turning every verified contract into a receipt anyone can check
+against the principal's `did:web` domain. An engine that emits MUST:
+
+1. **Emit only from ground truth** — the record derives from the proof (checks run against
+   reality), never from the agent's prose.
+2. **Map faithfully**:
+
+| AAR field | from the proof |
+|---|---|
+| `task` | `{ id: proof.id, claim: <manifest goal text> }` |
+| `verdict` / `ground_truth` | `verified` / `confirmed` when checks passed; `rejected` / `contradicted` when attesting a failure |
+| `checks[]` | one per proof check: the check name as `query`, `sha256(output)` as the commitment, an excerpt |
+| `verifier` | the verifier's id, ≠ `subject`; `independence: same_principal` disclosed |
+| `sig.by` | the principal — sign with the org's own signer |
+
+3. **Fail open** — emission must never block, delay, or fail a sign-off. A signing failure
+   leaves the unsigned record on disk and logs loudly.
+4. **Skip keyless machines silently** — no configured identity is a normal state, not an error.
+
+Producers today: **machine-driver** emits per-task at verify time (including
+`rejected`/`contradicted` records); **Proctor** emits at each `signed_off → true` transition
+(verify / judge / operator; config: `aar.config.json` — see its `aar.config.example.json`).
+Two independent implementations of the same record format is the interoperability baseline
+this spec is measured by.
+
 ## Implementations
 
-| Engine | Altitude | Harness | Level | Where |
-|---|---|---|---|---|
-| ADL Warden gate | per-project (`.claude/`) | Claude Code | L3 (within the project) | this repo |
-| **Proctor** | per-machine (`~/.claude`) — every session, plus witness/disposition gates, operator inbox, judge dial | Claude Code | L3 | [frontier-infra/proctor](https://github.com/frontier-infra/proctor) |
-| Codex CLI / Grok / Pi engines | — | — | — | roadmap: each conforms to this spec, not to Proctor's plumbing |
+| Engine | Altitude | Harness | Level | AAR producer | Where |
+|---|---|---|---|---|---|
+| ADL Warden gate | per-project (`.claude/`) | Claude Code | L3 (within the project) | via Proctor's emitter when co-installed | this repo |
+| **Proctor** | per-machine (`~/.claude`) — every session, plus witness/disposition gates, operator inbox, judge dial | Claude Code | L3 | **yes** — at sign-off (§7) | [frontier-infra/proctor](https://github.com/frontier-infra/proctor) |
+| **machine-driver** | per-goal driver loop (code work) | any worker CLI | L3 Enforced | **yes** — per verified/rejected task | [frontier-infra/machine-driver](https://github.com/frontier-infra/machine-driver) |
+| Codex CLI / Grok / Pi engines | — | — | — | — | roadmap: each conforms to this spec, not to Proctor's plumbing |
